@@ -1,6 +1,10 @@
 package io.github.crisadamo.algebra
 
-trait Monoid[T] extends Semigroup[T] {
+import annotation.implicitNotFound
+
+
+@implicitNotFound("No member of type class Monoid in scope for ${T}")
+trait Monoid[@specialized(Int, Long, Float, Double) T] extends Semigroup[T] {
   def zero: T
   def sum(vs: TraversableOnce[T]): T = sumOption(vs).getOrElse(zero)
   def isNonZero(v: T): Boolean = (v != zero)
@@ -18,6 +22,12 @@ object Monoid {
     def zero: T = z
     def plus(l: T, r: T): T = f(l, r)
   }
+
+  implicit def optionMonoid[T: Semigroup]: Monoid[Option[T]] = new OptionMonoid[T]
+  implicit def listMonoid[T]: Monoid[List[T]] = new ListMonoid[T]
+  implicit def seqMonoid[T]: Monoid[Seq[T]] = new SeqMonoid[T]
+  implicit def setMonoid[T]: Monoid[Set[T]] = new SetMonoid[T]
+  implicit val stringMonoid = new StringMonoid
 }
 
 
@@ -35,7 +45,7 @@ class OptionMonoid[T](implicit semi: Semigroup[T]) extends Monoid[Option[T]] {
 }
 
 
-class ListMonoid[T](implicit semi: Semigroup[T]) extends Monoid[List[T]] {
+class ListMonoid[T] extends Monoid[List[T]] {
   override def zero = List[T]()
   override def plus(l: List[T], r: List[T]): List[T] = r ++ l
   override def sumOption(iter: TraversableOnce[List[T]]): Option[List[T]] =
@@ -48,7 +58,7 @@ class ListMonoid[T](implicit semi: Semigroup[T]) extends Monoid[List[T]] {
 }
 
 
-class SeqMonoid[T](implicit semi: Semigroup[T]) extends Monoid[Seq[T]] {
+class SeqMonoid[T] extends Monoid[Seq[T]] {
   override def zero = Seq[T]()
   override def plus(l: Seq[T], r: Seq[T]): Seq[T] = l ++ r
   override def sumOption(iter: TraversableOnce[Seq[T]]): Option[Seq[T]] =
@@ -61,7 +71,7 @@ class SeqMonoid[T](implicit semi: Semigroup[T]) extends Monoid[Seq[T]] {
 }
 
 
-class SetMonoid[T](implicit semi: Semigroup[T]) extends Monoid[Set[T]] {
+class SetMonoid[T] extends Monoid[Set[T]] {
   override def zero = Set[T]()
   override def plus(l: Set[T], r: Set[T]): Set[T] = l ++ r
   override def sumOption(iter: TraversableOnce[Set[T]]): Option[Set[T]] =

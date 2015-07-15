@@ -1,7 +1,9 @@
 package io.github.crisadamo.algebra
 
-import io.github.crisadamo.algebra.Monoid
+import annotation.implicitNotFound
 
+
+@implicitNotFound("No member of type class Group in scope for ${T}")
 trait Group[T] extends Monoid[T] {
   def inverse(v: T): T = minus(zero, v)
   def minus(l: T, r: T): T = plus(l, inverse(r))
@@ -11,6 +13,8 @@ trait Group[T] extends Monoid[T] {
 object Group {
   def inverse[T](v: T)(implicit grp: Group[T]): T = grp.inverse(v)
   def minus[T](l: T, r: T)(implicit grp: Group[T]): T = grp.minus(l, r)
+
+  implicit def optionGroup[T: Group] = new OptionGroup[T]
 }
 
 
