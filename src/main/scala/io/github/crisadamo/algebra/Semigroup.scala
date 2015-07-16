@@ -6,6 +6,9 @@ import annotation.implicitNotFound
 @implicitNotFound("No member of type class Semigroup in scope for ${T}")
 trait Semigroup[@specialized(Int, Long, Float, Double) T] extends java.io.Serializable {
   def plus(l: T, r: T): T
+  def plusBy[@specialized(Int, Long, Float, Double) U](l: T, r: U): T =
+    plus(l, r.asInstanceOf[T])
+
   def sumOption(iter: TraversableOnce[T]): Option[T] =
     iter.reduceLeftOption { plus(_, _) }
 }

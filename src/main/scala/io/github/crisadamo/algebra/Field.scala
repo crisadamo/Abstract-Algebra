@@ -1,6 +1,7 @@
 package io.github.crisadamo.algebra
 
 import annotation.implicitNotFound
+import scala.reflect.ClassTag
 
 
 @implicitNotFound("No member of type class Field in scope for ${T}")
@@ -13,8 +14,11 @@ trait Field[@specialized(Int, Long, Float, Double) T] extends Ring[T] {
     times(l, inverse(r))
   }
 
-  def divByInt(l: T, r: Int): T = div(l, r.asInstanceOf[T])
-  def divAsInt(l: T, r: Int): Int = divByInt(l, r).asInstanceOf[Int]
+  def divBy[@specialized(Int, Long, Float, Double) U](l: T, r: U): T =
+    div(l, r.asInstanceOf[T])
+
+  def divByAs[@specialized(Int, Long, Float, Double) U](l: T, r: U): U =
+    div(l, r.asInstanceOf[T]).asInstanceOf[U]
 }
 
 

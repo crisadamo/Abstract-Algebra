@@ -7,6 +7,8 @@ import annotation.implicitNotFound
 trait Ring[@specialized(Int, Long, Float, Double) T] extends Group[T] {
   def one: T
   def times(l: T, r: T): T
+  def timesBy[@specialized(Int, Long, Float, Double) U](l: T, r: U): T =
+    times(l, r.asInstanceOf[T])
 }
 
 object Ring {
